@@ -1,9 +1,8 @@
-921
-
+920
 #Este es un script extremo, no apto para espiritus fragiles
 #Optimizacion Bayesiana de hiperparametros de LightGBM
 #Sin cross validation
-#Se testea en 201905 , o sea testea en un mes del medio !
+#Se testea en 201905 , o sea testeao en un mes del medio !
 #Se entrena en TODOS los meses que tienen clase, excepto 201905
 #Se utiliza  undersampling de los CONTINUA  al 10%
 
@@ -32,13 +31,14 @@ switch ( Sys.info()[['sysname']],
 setwd( directory.root )
 
 kfinalize <- FALSE
-kexperimento  <- NA
+kexperimento  <- 1010
 
 kscript           <- "lightgbm_BO_SINxval"
 karch_generacion  <- "./datasetsOri/paquete_premium.txt.gz"
 kBO_iter    <-  100   #cantidad de iteraciones de la Optimizacion Bayesiana
 
 hs <- makeParamSet( 
+         makeNumericParam("learning_rate",    lower= 0.01 , upper=    0.1),
          makeNumericParam("feature_fraction", lower= 0.1  , upper=    1.0),
          makeIntegerParam("min_data_in_leaf", lower= 1    , upper= 5000),
          makeIntegerParam("num_leaves",       lower=16L   , upper= 1024L),
@@ -129,16 +129,15 @@ EstimarGananciaLightGBM  <- function( x )
                         first_metric_only= TRUE,
                         boost_from_average= TRUE,
                         feature_pre_filter= FALSE,
-                        early_stopping_rounds= as.integer(50 + 5/0.02),
+                        early_stopping_rounds= as.integer(50 + 5/x$learning_rate),
                         num_iterations= 99999,   #un numero muy grande
                         max_bin= as.integer(x$max_bin),
-                        learning_rate= 0.02,  #Fijo
+                        learning_rate= x$learning_rate,
                         feature_fraction= x$feature_fraction,
                         num_leaves=  x$num_leaves,
                         min_data_in_leaf= as.integer( x$min_data_in_leaf ),
                         lambda_l1= 0,
                         lambda_l2= 0,
-                        nthread= 8,
                         verbosity= -1,
                         verbose= -1,
                         seed= 999983
@@ -309,5 +308,6 @@ for( prob in   135:145  )
 }
 
 quit( save="no" )
+
 
 
